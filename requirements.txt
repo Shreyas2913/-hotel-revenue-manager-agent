@@ -1,0 +1,15 @@
+streamlit
+pandas
+plotly
+openai
+sqlalchemy
+psycopg2-binary
+python-dotenv
+
+langchain
+langgraph
+deepagents
+
+playwright
+
+requests
