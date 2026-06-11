@@ -2,11 +2,11 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
-from agent.agent import generate_sql
+
+from agent.smart_agent import ask_agent
 from agent.tools import run_sql
-from agent.router import route_question
-from agent.memory import save_memory, get_memory
-from agent.explainer import explain_result
+from agent.memory import save_memory
+
 
 st.set_page_config(
     page_title="Hotel Revenue Manager AI",
@@ -14,33 +14,8 @@ st.set_page_config(
     layout="wide"
 )
 
+
 # ==========================
-# Styling
-# ==========================
-
-st.markdown("""
-<style>
-
-.main {
-    background-color: #f7f9fc;
-}
-
-div[data-testid="stMetric"] {
-    background-color: white;
-    padding: 20px;
-    border-radius: 15px;
-    box-shadow: 0px 3px 10px rgba(0,0,0,0.1);
-}
-
-.stButton button {
-    width: 100%;
-    height: 50px;
-    border-radius: 12px;
-    font-weight: bold;
-}
-
-</style>
-""", unsafe_allow_html=True)
 
 # ==========================
 # Sidebar
@@ -62,8 +37,14 @@ with st.sidebar:
 # Header
 # ==========================
 
-st.title("🏨 Hotel Revenue Manager AI")
-st.caption("AI-powered hotel business intelligence dashboard")
+st.markdown("""
+# 🏨 Hotel Revenue Manager AI
+
+### AI-Powered Revenue Intelligence Platform
+
+Monitor bookings, cancellations, ADR, guest trends,
+and ask business questions using a Deep Agent.
+""")
 
 # ==========================
 # KPI Cards
@@ -109,16 +90,16 @@ except Exception:
 col1, col2, col3, col4 = st.columns(4)
 
 with col1:
-    st.metric("Reservations", total)
+    st.metric("🏨 Reservations", total)
 
 with col2:
-    st.metric("Cancelled", cancelled)
+    st.metric("❌ Cancelled", cancelled)
 
 with col3:
-    st.metric("Cancellation Rate", f"{rate}%")
+    st.metric("📉 Cancellation Rate", f"{rate}%")
 
 with col4:
-    st.metric("Average ADR", f"€{adr}")
+   st.metric("💰 Average ADR", f"€{adr}")
 
 st.divider()
 
@@ -197,6 +178,12 @@ with right:
 
 st.divider()
 
+
+
+# ==========================
+# AI Assistant
+# ==========================
+
 # ==========================
 # AI Assistant
 # ==========================
@@ -214,52 +201,25 @@ if st.button("Analyze"):
 
         try:
 
-            # Save memory
             save_memory(question)
 
-            # Detect skill
-            skill = route_question(question)
-
-            # Generate SQL
-            sql = generate_sql(question)
-
-            # Run query
-            result = run_sql(sql)
-
-            st.chat_message("user").write(question)
-
-            st.info(
-                f"Selected Skill: {skill}"
+            st.chat_message("user").write(
+                question
             )
 
-            # Extract result
-            if (
-                len(result) == 1
-                and len(result[0]) == 1
-            ):
-                value = result[0][0]
-            else:
-                value = result
-
-            # Business explanation
-            business_answer = explain_result(
-                question,
-                value
-            )
+            answer = ask_agent(question)
 
             st.chat_message("assistant").write(
-                business_answer
-            )
-
-            # Memory section
-            st.subheader("🧠 Recent Memory")
-            st.write(
-                get_memory()
+                answer
             )
 
         except Exception as e:
 
-            st.error(str(e))
+            st.error(
+                f"Error: {str(e)}"
+            )
+
+
 
 st.divider()
 
