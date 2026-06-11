@@ -7,3 +7,5 @@ __pycache__/
 .streamlit/
 
 Data/raw/
+test_*.py
+agent/test_*.py
